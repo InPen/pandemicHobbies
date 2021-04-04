@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MY APP</title>
+  </head>
+
+  <body>
+    <h1>May Node and Express be with you.</h1>
+    <form action="/posts" method="POST">
+      <input type="text" placeholder="Title" name="title" />
+      <input type="text" placeholder="Activity Name" name="activityName" />
+      <input type="text" placeholder="body" name="body" />
+      <button type="submit">Submit</button>
+    </form>
+    <ul class="posts">
+      <% for(var i=0; i < posts.length; i++) {%>
+      <li class="post">
+        <span> <%= posts[i].title %> </span>:
+        <span> <%= posts[i].activityName %> </span>
+        <span> <%= posts[i].body %> </span>
+      </li>
+      <% } %>
+    </ul>
+  </body>
+</html>
