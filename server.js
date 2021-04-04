@@ -15,32 +15,10 @@ const {MONGO_URI} = require("./.env");
 app.listen(3000, function () {
   app.use(bodyParser.urlencoded({ extended: true }));
 
-
-  MongoClient.connect(
-    MONGO_URI,
-    {
-      useUnifiedTopology: true,
-    },
-    (err, client) => {
-      if (err) return console.error(err);
-      console.log("Connected to Database");
-    }
-  );
-
-  // MongoClient.connect("mongodb-connection-string", (err, client) => {
-  //   // ... do something here
-  // });
-
-  // const uri = process.env.MONGO_URI;
-  // MongoServerSelectionError.connect(uri, {
-  //   useNewUrlParser: true,
-  //   useCreateIndex: true,
-  // });
-  // const connection = mongoose.connection;
-  // connection.once("open", () => {
-  //   console.log("Connected to DB sucessfully!");
-  // });
-
+MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then((client) => {
+  console.log("Connected to Database");
+  const db = client.db("pandemicHobbies");
+});
 
 
   app.get("/", (req, res) => {
