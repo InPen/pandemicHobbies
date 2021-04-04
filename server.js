@@ -23,11 +23,12 @@ MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then((client) => {
 
 
   app.get("/", (req, res) => {
-    const cursor = db.collection("posts").find();
-    console.log(cursor);
-    res.sendFile(__dirname + "/index.html");
-    // Note: __dirname is the current directory you're in. Try logging it and see what you get!
-    // Mine was '/Users/zellwk/Projects/demo-repos/crud-express-mongo' for this app.
+    db.collection("posts")
+      .find()
+      .toArray()
+      .then((results) => {
+        res.render("index.ejs", { posts: results });
+      });
   });
 
   app.post("/posts", (req, res) => {
