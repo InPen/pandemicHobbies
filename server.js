@@ -14,14 +14,16 @@ var db
 app.listen(3000, function () {
   app.use(bodyParser.urlencoded({ extended: true }));
 
-MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then((client) => {
-  console.log("Connected to Database");
-  db = client.db("pandemicHobbies");
-  const postsCollection = db.collection("posts");
-
-});
-
-
+  MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then(
+    (client) => {
+      console.log("Connected to Database");
+      db = client.db("pandemicHobbies");
+      const postsCollection = db.collection("posts");
+    }
+  );
+  // tells express to render the public folder
+  app.use(express.static("public"));
+  
   app.get("/", (req, res) => {
     db.collection("posts")
       .find()
@@ -32,9 +34,12 @@ MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then((client) => {
   });
 
   app.post("/posts", (req, res) => {
-    db.collection('posts').save(req.body, (err, result) => {
-      if (err){ return console.log(err)}
-      console.log('saved to database')
-      res.redirect('/')  })
+    db.collection("posts").save(req.body, (err, result) => {
+      if (err) {
+        return console.log(err);
+      }
+      console.log("saved to database");
+      res.redirect("/");
+    });
   });
 });
