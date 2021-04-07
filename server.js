@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const MongoClient = require("mongodb").MongoClient;
 const { MongoServerSelectionError } = require("mongodb");
 const app = express();
+const mongoose = require("mongoose");
+const passport = require("passport");
 //environment variables
 const {MONGO_URI} = require("./.env");
 var db
@@ -21,6 +23,10 @@ app.listen(3000, function () {
       const postsCollection = db.collection("posts");
     }
   );
+
+  require('./config/passport')(passport); // pass passport for configuration
+
+
   // tells express to render the public folder
   app.use(express.static("public"));
   
@@ -43,3 +49,7 @@ app.listen(3000, function () {
     });
   });
 });
+
+
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
