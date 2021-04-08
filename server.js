@@ -38,13 +38,25 @@ app.listen(3000, function () {
       });
   });
 
+  app.get("/profile", (req, res) => {
+    db.collection("posts")
+      .find()
+      .toArray()
+      .then((results) => {
+        res.render("profile.ejs", { posts: results });
+      });
+  });
+
   app.post("/posts", (req, res) => {
+    db.collection('activities').createIndex({ id: req.body.activityName },{ unique: true });
+
+    console.log(req.body)
     db.collection("posts").save(req.body, (err, result) => {
       if (err) {
         return console.log(err);
       }
       console.log("saved to database");
-      res.redirect("/");
+      res.redirect("/profile");
     });
   });
 
