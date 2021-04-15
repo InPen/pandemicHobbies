@@ -38,7 +38,7 @@ app.listen(3000, function () {
       });
   });
 
-  app.get("/profile", (req, res) => {
+  app.get("/profile", isLoggedIn, (req, res) => {
     db.collection("posts")
       .find()
       .toArray()
@@ -48,10 +48,8 @@ app.listen(3000, function () {
   });
 
   app.post("/posts", (req, res) => {
-    db.collection('activities').createIndex({ id: req.body.activityName },{ unique: true });
-
     console.log(req.body)
-    db.collection("posts").save(req.body, (err, result) => {
+    db.collection("posts").insertOne(req.body, (err, result) => {
       if (err) {
         return console.log(err);
       }
@@ -74,7 +72,7 @@ app.listen(3000, function () {
   // LOGIN ===============================
   // show the login form
   app.get("/login", function (req, res) {
-    res.render("login.ejs", { message: req.flash("loginMessage") });
+    res.render("login.ejs");
   });
 
   // process the login form
@@ -90,7 +88,7 @@ app.listen(3000, function () {
   // SIGNUP =================================
   // show the signup form
   app.get("/signup", function (req, res) {
-    res.render("signup.ejs", { message: req.flash("signupMessage") });
+    res.render("signup.ejs");
   });
 
   // process the signup form
@@ -104,6 +102,16 @@ app.listen(3000, function () {
   );
 });
 
+//If not logged in redirect to "/"
+
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect("/");
+}
+
+
 
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
+
+
