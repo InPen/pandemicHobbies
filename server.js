@@ -1,117 +1,52 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const MongoClient = require("mongodb").MongoClient;
-const { MongoServerSelectionError } = require("mongodb");
 const app = express();
+const port = process.env.PORT || 8080;
+const MongoClient = require("mongodb").MongoClient;
 const mongoose = require("mongoose");
 const passport = require("passport");
-//environment variables
-const {MONGO_URI} = require("./.env");
-var db
+const flash = require("connect-flash");
 
 
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const session = require("express-session");
 
 
-
-app.listen(3000, function () {
-  app.use(bodyParser.urlencoded({ extended: true }));
-
-  MongoClient.connect(MONGO_URI, { useUnifiedTopology: true }).then(
-    (client) => {
-      console.log("Connected to Database");
-      db = client.db("pandemicHobbies");
-      const postsCollection = db.collection("posts");
-    }
-  );
-
-  require("./config/passport")(passport); // pass passport for configuration
-
-  // tells express to render the public folder
-  app.use(express.static("public"));
-
-  app.get("/", (req, res) => {
-    db.collection("posts")
-      .find()
-      .toArray()
-      .then((results) => {
-        res.render("index.ejs", { posts: results });
-      });
-  });
-
-  app.get("/profile", isLoggedIn, (req, res) => {
-    db.collection("posts")
-      .find()
-      .toArray()
-      .then((results) => {
-        res.render("profile.ejs", { posts: results });
-      });
-  });
-
-  app.post("/posts", (req, res) => {
-    console.log(req.body)
-    db.collection("posts").insertOne(req.body, (err, result) => {
-      if (err) {
-        return console.log(err);
-      }
-      console.log("saved to database");
-      res.redirect("/profile");
-    });
-  });
-
-  // LOGOUT ==============================
-  app.get("/logout", function (req, res) {
-    req.logout();
-    res.redirect("/");
-  });
-
-  // =============================================================================
-  // AUTHENTICATE (FIRST LOGIN) ==================================================
-  // =============================================================================
-
-  // locally --------------------------------
-  // LOGIN ===============================
-  // show the login form
-  app.get("/login", function (req, res) {
-    res.render("login.ejs");
-  });
-
-  // process the login form
-  app.post(
-    "/login",
-    passport.authenticate("local-login", {
-      successRedirect: "/profile", // redirect to the secure profile section
-      failureRedirect: "/login", // redirect back to the signup page if there is an error
-      failureFlash: true, // allow flash messages
-    })
-  );
-
-  // SIGNUP =================================
-  // show the signup form
-  app.get("/signup", function (req, res) {
-    res.render("signup.ejs");
-  });
-
-  // process the signup form
-  app.post(
-    "/signup",
-    passport.authenticate("local-signup", {
-      successRedirect: "/profile", // redirect to the secure profile section
-      failureRedirect: "/signup", // redirect back to the signup page if there is an error
-      failureFlash: true, // allow flash messages
-    })
-  );
-});
-
-//If not logged in redirect to "/"
-
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.redirect("/");
-}
+const { MONGO_URI } = require("./.env");
+var db;
 
 
+// configuration ===============================================================
+mongoose.connect(MONGO_URI, (err, database) => {
+  if (err) return console.log(err);
+  db = database;
+  require("./app/routes.js")(app, passport, db);
+}); // connect to our database
 
+require("./config/passport")(passport); // pass passport for configuration
+
+// set up our express application
+app.use(morgan("dev")); // log every request to the console
+app.use(cookieParser()); // read cookies (needed for auth)
+app.use(bodyParser.json()); // get information from html forms
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+app.set("view engine", "ejs"); // set up ejs for templating
+
+// required for passport
+app.use(
+  session({
+    secret: "secret", // session secret
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
 
-
+// launch ======================================================================
+app.listen(port);
+console.log("The magic happens on port " + port);
