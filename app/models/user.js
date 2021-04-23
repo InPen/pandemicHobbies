@@ -7,7 +7,7 @@ var userSchema = mongoose.Schema({
   local: {
     email: String,
     password: String,
-  }
+  },
 });
 
 // generating a hash
