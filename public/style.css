@@ -1,0 +1,29 @@
+body {
+  padding-top: 80px;
+  word-wrap: break-word;
+}
+img {
+  height: 200px;
+}
+body {
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+.display-flex {
+  display: flex; /* or inline-flex */
+  flex-direction: column;
+}
+
+input {
+  width: 50%;
+}
+
+.marginBottom {
+  margin-bottom: 1.5em;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0px;
+}
