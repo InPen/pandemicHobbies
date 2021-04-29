@@ -61,16 +61,24 @@ module.exports = function (app, passport, db) {
   });
 
   app.delete("/posts", (req, res) => {
-    console.log(req.body);
+    console.log(
+      db.collection("posts").findOne(
+        {
+          title: req.body.title,
+        },
+        (err, result) => {
+          return result
+        }
+      )
+    );
     console.log("sdf");
     debugger;
     db.collection("posts").findOneAndDelete(
       {
-        title: req.body.title,
+        title: req.body.title
       },
       (err, result) => {
-        console.log(err, result);
-        debugger;
+        console.log('pizza')
         if (err) return res.send(500, err);
         res.send("Message deleted!");
       }
